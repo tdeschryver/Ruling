@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Title>Ruling</Title>
+    <AssemblyName>Ruling</AssemblyName>
+    <PackageId>Ruling</PackageId>
+    <PackageTags>ruling;validation;</PackageTags>
+    <PackageProjectUrl>https://github.com/tdeschryver/Ruling</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/tdeschryver/Ruling/blob/master/LICENSE</PackageLicenseUrl>
+
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
