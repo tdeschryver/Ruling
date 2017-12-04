@@ -8,8 +8,8 @@ namespace Ruling
     {
         public static Func<TObject, Result> Nested<TObject, TNestedObject>(Expression<Func<TObject, TNestedObject>> selector, Func<TNestedObject, Result> fun, string message = null, string key = null) where TNestedObject : class
         {
-            var parameterName = GetKey(selector, key);
-            var nestedMessage = GetMessage(message);
+            var ruleKey = GetKey(selector, key);
+            var ruleMessage = GetMessage(message);
 
             return (TObject @object) =>
             {
@@ -18,14 +18,14 @@ namespace Ruling
                 var value = selector.Compile().Invoke(@object);
                 if (value == null)
                 {
-                    result.AddError(parameterName, nestedMessage);
+                    result.AddError(ruleKey, ruleMessage);
                     return result;
                 }
 
                 var nestedResult = fun(value);
                 foreach (var error in nestedResult.Errors)
                 {
-                    result.AddErrors($"{parameterName}.{error.Key}", error.Value);
+                    result.AddErrors($"{ruleKey}.{error.Key}", error.Value);
                 }
                 return result;
             };
