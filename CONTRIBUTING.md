@@ -8,6 +8,7 @@ First off, **thanks** for being willing to contribute!
 
 ### Submitting a Pull Request
 - [Fork and clone](https://help.github.com/articles/fork-a-repo/) the repository
+- Run `dotnet restore` to install dependencies
 - Create a new feature branch for your Pull Request: `git checkout -b [name_of_your_new_branch]`
 - Time to code! (Don't forget, new features should also have tests!)
 - [Push your code](https://help.github.com/articles/pushing-to-a-remote/) from your feature branch (Make sure to run the tests before)
