@@ -40,7 +40,7 @@ namespace Ruling.Tests
             var ruling = CreateRuling(_fooRequired);
             var result = ruling(new Fixture());
 
-            Assert.Equal(1, result.Errors.Count);
+            Assert.Single(result.Errors);
         }
 
         [Fact]
@@ -142,8 +142,144 @@ namespace Ruling.Tests
             var ruling = CreateRuling(_fooRequired, _fooRequired);
             var result = ruling(new Fixture());
 
-            Assert.Equal(1, result.Errors.Keys.Count);
+            Assert.Single(result.Errors.Keys);
             Assert.Equal(2, result.Errors.Values.SelectMany(p => p).Count());
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_BeValid_When_ValidationIsOK()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(new Fixture { Foo = "foo" });
+
+            Assert.True(result.Valid);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveNoErrors_When_ValidationIsOK()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(new Fixture { Foo = "foo" });
+
+            Assert.Empty(result.Errors);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_BeInvalid_When_ValidationIsNotOK()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(new Fixture());
+
+            Assert.False(result.Valid);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveOneError_When_ValidationIsNotOK()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_BeInvalid_When_InputIsNull()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(null);
+
+            Assert.False(result.Valid);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveAKey_When_ValidationIsNotOK()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Equal(nameof(Fixture.Foo), result.Errors.Single().Key);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveAMessage_When_ValidationIsNotOK()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Equal("Foo is required", result.Errors.Single().Value.Single());
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveOneError_When_MultipleRulesAreUsed()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired, _barRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveOneKey_When_MultipleRulesAreUsed()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired, _barRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors.Keys);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveTheFirstMessage_When_MultipleRulesAreUsed()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired, _barRequired);
+            var result = ruling(new Fixture());
+
+            var messages = result.Errors.Values.SelectMany(p => p);
+            Assert.Contains("Foo is required", messages);
+            Assert.DoesNotContain("Bar is required", messages);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveOneError_When_RulingsAreChained()
+        {
+            var rulingFoo = CreateRulingFailFast(_fooRequired);
+            var rulingBar = CreateRulingFailFast(_barRequired);
+            var ruling = CreateRulingFailFast(rulingFoo, rulingBar);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveOneKey_When_RulingsAreChained()
+        {
+            var rulingFoo = CreateRulingFailFast(_fooRequired);
+            var rulingBar = CreateRulingFailFast(_barRequired);
+            var ruling = CreateRulingFailFast(rulingFoo, rulingBar);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors.Keys);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveTheFirstMessages_When_RulingsAreChained()
+        {
+            var rulingFoo = CreateRulingFailFast(_fooRequired);
+            var rulingBar = CreateRulingFailFast(_barRequired);
+            var ruling = CreateRulingFailFast(rulingFoo, rulingBar);
+            var result = ruling(new Fixture());
+
+            var messages = result.Errors.Values.SelectMany(p => p);
+            Assert.Contains("Foo is required", messages);
+            Assert.DoesNotContain("Bar is required", messages);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_NotStackMessages_When_ItHasTheSameKey()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired, _fooRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors.Keys);
         }
 
         Func<Fixture, (bool valid, string key, string message)> _fooRequired =

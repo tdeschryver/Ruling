@@ -7,11 +7,55 @@ namespace Ruling
     public class Factory
     {
         public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, (bool valid, string key, string message)>[] rules)
-            => (TObject @object) => rules.Aggregate(new Result(), (result, rule) =>
+            => (TObject @object) =>
             {
                 if (@object == null)
                 {
                     return new NullResult();
+                }
+
+                return ValidateRules<TObject>(@object, false, rules);
+            };
+
+        public static Func<TObject, Result> CreateRulingFailFast<TObject>(params Func<TObject, (bool valid, string key, string message)>[] rules)
+            => (TObject @object) =>
+            {
+                if (@object == null)
+                {
+                    return new NullResult();
+                }
+
+                return ValidateRules<TObject>(@object, true, rules);
+            };
+
+        public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, Result>[] rulings)
+            => (TObject @object) =>
+            {
+                if (@object == null)
+                {
+                    return new NullResult();
+                }
+
+                return ValidateRulings<TObject>(@object, false, rulings);
+            };
+
+        public static Func<TObject, Result> CreateRulingFailFast<TObject>(params Func<TObject, Result>[] rulings)
+            => (TObject @object) =>
+            {
+                if (@object == null)
+                {
+                    return new NullResult();
+                }
+
+                return ValidateRulings<TObject>(@object, true, rulings);
+            };
+
+        static Result ValidateRules<TObject>(TObject @object, bool failFast, Func<TObject, (bool valid, string key, string message)>[] rules)
+            => rules.Aggregate(new Result(), (result, rule) =>
+            {
+                if (!result.Valid && failFast)
+                {
+                    return result;
                 }
 
                 var ruleResult = rule.Invoke(@object);
@@ -24,12 +68,12 @@ namespace Ruling
                 return result;
             });
 
-        public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, Result>[] rulings)
-            => (TObject @object) => rulings.Aggregate(new Result(), (result, ruling) =>
+        static Result ValidateRulings<TObject>(TObject @object, bool failFast, Func<TObject, Result>[] rulings)
+            => rulings.Aggregate(new Result(), (result, ruling) =>
             {
-                if (@object == null)
+                if (!result.Valid && failFast)
                 {
-                    return new NullResult();
+                    return result;
                 }
 
                 var rulingResult = ruling.Invoke(@object);
