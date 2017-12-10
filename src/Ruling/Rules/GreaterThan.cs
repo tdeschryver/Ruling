@@ -10,7 +10,7 @@ namespace Ruling
     {
         public const string GreaterThanMessage = "must be greater than {0}";
 
-        public static Func<TObject, (bool valid, string key, string message)> GreaterThan<TObject>(Expression<Func<TObject, IComparable>> selector, IComparable other, string message = null, string key = null)
+        public static Func<TObject, (bool valid, string key, string message)> GreaterThan<TObject, TComparable>(Expression<Func<TObject, IComparable<TComparable>>> selector, IComparable<TComparable> other, string message = null, string key = null)
         {
             var ruleKey = GetKey(selector, key);
             var ruleMessage = other == null
@@ -29,7 +29,7 @@ namespace Ruling
             };
         }
 
-        public static Func<TObject, (bool valid, string key, string message)> GreaterThan<TObject>(Expression<Func<TObject, IComparable>> selector, Func<TObject, IComparable> other, string message = null, string key = null)
+        public static Func<TObject, (bool valid, string key, string message)> GreaterThan<TObject, TComparable>(Expression<Func<TObject, IComparable<TComparable>>> selector, Func<TObject, IComparable<TComparable>> other, string message = null, string key = null)
         {
             var ruleKey = GetKey(selector, key);
 
@@ -50,9 +50,9 @@ namespace Ruling
             };
         }
 
-        static bool IsInvalidGreaterThan(IComparable value, IComparable other)
+        static bool IsInvalidGreaterThan<TComparable>(IComparable<TComparable> value, IComparable<TComparable> other)
             => value == null || other == null
                 ? true
-                : value.CompareTo(other) <= 0;
+                : value.CompareTo((TComparable)other) <= 0;
     }
 }
