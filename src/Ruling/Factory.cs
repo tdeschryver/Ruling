@@ -17,6 +17,9 @@ namespace Ruling
                 return ValidateRules<TObject>(@object, false, rules);
             };
 
+        public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, (bool valid, string key, string message)>[][] rules)
+            => CreateRuling(rules.SelectMany(r => r).ToArray());
+
         public static Func<TObject, Result> CreateRulingFailFast<TObject>(params Func<TObject, (bool valid, string key, string message)>[] rules)
             => (TObject @object) =>
             {
@@ -27,6 +30,9 @@ namespace Ruling
 
                 return ValidateRules<TObject>(@object, true, rules);
             };
+
+        public static Func<TObject, Result> CreateRulingFailFast<TObject>(params Func<TObject, (bool valid, string key, string message)>[][] rules)
+            => CreateRulingFailFast(rules.SelectMany(r => r).ToArray());
 
         public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, Result>[] rulings)
             => (TObject @object) =>

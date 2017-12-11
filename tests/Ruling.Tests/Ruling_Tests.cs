@@ -137,6 +137,42 @@ namespace Ruling.Tests
         }
 
         [Fact]
+        public void Ruling_Should_HaveAllErrors_When_RulesInArray()
+        {
+            var fooRules = new[] { _fooRequired };
+            var barRules = new[] { _barRequired };
+            var ruling = CreateRuling(fooRules, barRules);
+            var result = ruling(new Fixture());
+
+            Assert.Equal(2, result.Errors.Count);
+        }
+
+        [Fact]
+        public void Ruling_Should_HaveAllKeys_When_RulesInArray()
+        {
+            var fooRules = new[] { _fooRequired };
+            var barRules = new[] { _barRequired };
+            var ruling = CreateRuling(fooRules, barRules);
+            var result = ruling(new Fixture());
+
+            Assert.Contains(nameof(Fixture.Foo), result.Errors.Keys);
+            Assert.Contains(nameof(Fixture.Bar), result.Errors.Keys);
+        }
+
+        [Fact]
+        public void Ruling_Should_HaveAllMessages_When_RulesInArray()
+        {
+            var fooRules = new[] { _fooRequired };
+            var barRules = new[] { _barRequired };
+            var ruling = CreateRuling(fooRules, barRules);
+            var result = ruling(new Fixture());
+
+            var messages = result.Errors.Values.SelectMany(p => p);
+            Assert.Contains("Foo is required", messages);
+            Assert.Contains("Bar is required", messages);
+        }
+
+        [Fact]
         public void Ruling_Should_StackMessages_When_ItHasTheSameKey()
         {
             var ruling = CreateRuling(_fooRequired, _fooRequired);
@@ -239,6 +275,15 @@ namespace Ruling.Tests
         }
 
         [Fact]
+        public void RulingFailFast_Should_NotStackMessages_When_ItHasTheSameKey()
+        {
+            var ruling = CreateRulingFailFast(_fooRequired, _fooRequired);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors.Keys);
+        }
+
+        [Fact]
         public void RulingFailFast_Should_HaveOneError_When_RulingsAreChained()
         {
             var rulingFoo = CreateRulingFailFast(_fooRequired);
@@ -274,12 +319,38 @@ namespace Ruling.Tests
         }
 
         [Fact]
-        public void RulingFailFast_Should_NotStackMessages_When_ItHasTheSameKey()
+        public void RulingFailFast_Should_HaveOneError_When_RulesInArray()
         {
-            var ruling = CreateRulingFailFast(_fooRequired, _fooRequired);
+            var fooRules = new[] { _fooRequired };
+            var barRules = new[] { _barRequired };
+            var ruling = CreateRulingFailFast(fooRules, barRules);
+            var result = ruling(new Fixture());
+
+            Assert.Single(result.Errors);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveOneKey_When_RulesInArray()
+        {
+            var fooRules = new[] { _fooRequired };
+            var barRules = new[] { _barRequired };
+            var ruling = CreateRulingFailFast(fooRules, barRules);
             var result = ruling(new Fixture());
 
             Assert.Single(result.Errors.Keys);
+        }
+
+        [Fact]
+        public void RulingFailFast_Should_HaveTheFirstMessages_When_RulesInArray()
+        {
+            var fooRules = new[] { _fooRequired };
+            var barRules = new[] { _barRequired };
+            var ruling = CreateRulingFailFast(fooRules, barRules);
+            var result = ruling(new Fixture());
+
+            var messages = result.Errors.Values.SelectMany(p => p);
+            Assert.Contains("Foo is required", messages);
+            Assert.DoesNotContain("Bar is required", messages);
         }
 
         Func<Fixture, (bool valid, string key, string message)> _fooRequired =
