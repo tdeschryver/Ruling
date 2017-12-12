@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using static Ruling.Factory;
+using static Ruling.Validator;
 using static Ruling.Rule;
 
 namespace Ruling.Tests.Rules
@@ -15,9 +15,7 @@ namespace Ruling.Tests.Rules
         [InlineData(8, 8, false)]
         public void GreaterThan_Should_BeValid_When_ValidationIsOK(int value, int other, bool expected)
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, other));
-            var result = ruling(new Fixture { Value = value });
-
+            var result = Validate(new Fixture { Value = value }, GreaterThan<Fixture, int>(f => f.Value, other));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -27,9 +25,7 @@ namespace Ruling.Tests.Rules
         [InlineData(8, 8, false)]
         public void GreaterThan_Func_Should_BeValid_When_ValidationIsOK(int value, int other, bool expected)
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue));
-            var result = ruling(new Fixture { Value = value, OtherValue = other });
-
+            var result = Validate(new Fixture { Value = value, OtherValue = other }, GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -42,9 +38,7 @@ namespace Ruling.Tests.Rules
         [InlineData(null, null, false)]
         public void GreaterThan_Nullable_Should_BeValid_When_ValidationIsOK(int? value, int? other, bool expected)
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.NullableValue, other));
-            var result = ruling(new Fixture { NullableValue = value });
-
+            var result = Validate(new Fixture { NullableValue = value }, GreaterThan<Fixture, int>(f => f.NullableValue, other));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -57,120 +51,82 @@ namespace Ruling.Tests.Rules
         [InlineData(null, null, false)]
         public void GreaterThan_NullableFunc_Should_BeValid_When_ValidationIsOK(int? value, int? other, bool expected)
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.NullableValue, f => f.OtherNullableValue));
-            var result = ruling(new Fixture { NullableValue = value, OtherNullableValue = other });
-
+            var result = Validate(new Fixture { NullableValue = value, OtherNullableValue = other }, GreaterThan<Fixture, int>(f => f.NullableValue, f => f.OtherNullableValue));
             Assert.Equal(expected, result.Valid);
-        }
-
-        [Fact]
-        public void GreaterThan_Should_BeInvalid_When_InputIsNull()
-        {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, 3));
-            var result = ruling(null);
-
-            Assert.False(result.Valid);
-        }
-
-        [Fact]
-        public void GreaterThan_Func_Should_BeInvalid_When_InputIsNull()
-        {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue));
-            var result = ruling(null);
-
-            Assert.False(result.Valid);
         }
 
         [Fact]
         public void GreaterThan_Should_UseDefaultMessage_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, 3));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), GreaterThan<Fixture, int>(f => f.Value, 3));
             Assert.Equal(string.Format(GreaterThanMessage, 3), result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void GreaterThan_Func_Should_UseDefaultMessage_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue));
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 OtherValue = 10
-            });
-
+            }, GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue));
             Assert.Equal(string.Format(GreaterThanMessage, 10), result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void GreaterThan_Func_Should_UseNullInDefaultMessage_When_NoneIsProvidedAndValueIsNull()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.NullableValue));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), GreaterThan<Fixture, int>(f => f.Value, f => f.NullableValue));
             Assert.Equal(string.Format(GreaterThanMessage, "null"), result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void GreaterThan_Should_OverrideDefaultMessage_When_OneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, 3, message: "Custom message"));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), GreaterThan<Fixture, int>(f => f.Value, 3, message: "Custom message"));
             Assert.Equal("Custom message", result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void GreaterThan_Func_Should_OverrideDefaultMessage_When_OneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue, message: "Custom message"));
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 OtherValue = 10
-            });
-
+            }, GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue, message: "Custom message"));
             Assert.Equal("Custom message", result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void GreaterThan_Should_UsePropertyName_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, 3));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), GreaterThan<Fixture, int>(f => f.Value, 3));
             Assert.Equal(nameof(Fixture.Value), result.Errors.Single().Key);
         }
 
         [Fact]
         public void GreaterThan_Func_Should_UsePropertyName_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.NullableValue));
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 OtherValue = 10
-            });
-
+            }, GreaterThan<Fixture, int>(f => f.Value, f => f.NullableValue));
             Assert.Equal(nameof(Fixture.Value), result.Errors.Single().Key);
         }
 
         [Fact]
         public void GreaterThan_Should_OverridePropertyName_When_OneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, 3, key: "Foooo"));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), GreaterThan<Fixture, int>(f => f.Value, 3, key: "Foooo"));
             Assert.Equal("Foooo", result.Errors.Single().Key);
         }
 
         [Fact]
         public void GreaterThan_Func_Should_OverridePropertyName_When_OneIsProvided()
         {
-            var ruling = CreateRuling(GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue, key: "Foooo"));
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 OtherValue = 10
-            });
-
+            }, GreaterThan<Fixture, int>(f => f.Value, f => f.OtherValue, key: "Foooo"));
             Assert.Equal("Foooo", result.Errors.Single().Key);
         }
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using static Ruling.Factory;
+using static Ruling.Validator;
 using static Ruling.Rule;
 
 namespace Ruling.Tests.Rules
@@ -17,9 +17,7 @@ namespace Ruling.Tests.Rules
         [InlineData(null, false)]
         public void Required_String_Should_BeValid_When_ValidationIsOK(string value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.StringValue));
-            var result = ruling(new Fixture { StringValue = value });
-
+            var result = Validate(new Fixture { StringValue = value }, Required<Fixture>(f => f.StringValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -30,9 +28,7 @@ namespace Ruling.Tests.Rules
         [InlineData(null, false)]
         public void Required_NullableInt_Should_BeValid_When_ValidationIsOK(int? value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.NullableIntValue));
-            var result = ruling(new Fixture { NullableIntValue = value });
-
+            var result = Validate(new Fixture { NullableIntValue = value }, Required<Fixture>(f => f.NullableIntValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -43,9 +39,7 @@ namespace Ruling.Tests.Rules
         [InlineData(null, false)]
         public void Required_NullableInt64_Should_BeValid_When_ValidationIsOK(Int64? value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.NullableInt64Value));
-            var result = ruling(new Fixture { NullableInt64Value = value });
-
+            var result = Validate(new Fixture { NullableInt64Value = value }, Required<Fixture>(f => f.NullableInt64Value));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -55,9 +49,7 @@ namespace Ruling.Tests.Rules
         [InlineData(-47, true)]
         public void Required_Double_Should_BeValid_When_ValidationIsOK(double value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.DoubleValue));
-            var result = ruling(new Fixture { DoubleValue = value });
-
+            var result = Validate(new Fixture { DoubleValue = value }, Required<Fixture>(f => f.DoubleValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -67,9 +59,7 @@ namespace Ruling.Tests.Rules
         [InlineData(null, false)]
         public void Required_IEnumerable_Should_BeValid_When_ValidationIsOK(IEnumerable<string> value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.IEnumerableValue));
-            var result = ruling(new Fixture { IEnumerableValue = value });
-
+            var result = Validate(new Fixture { IEnumerableValue = value }, Required<Fixture>(f => f.IEnumerableValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -77,9 +67,7 @@ namespace Ruling.Tests.Rules
         [MemberData(nameof(DictionaryData))]
         public void Required_Dictionary_Should_BeValid_When_ValidationIsOK(Dictionary<string, string> value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.DictionaryValue));
-            var result = ruling(new Fixture { DictionaryValue = value });
-
+            var result = Validate(new Fixture { DictionaryValue = value }, Required<Fixture>(f => f.DictionaryValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -87,9 +75,7 @@ namespace Ruling.Tests.Rules
         [MemberData(nameof(NestedValueData))]
         public void Required_Nested_Should_BeValid_When_ValidationIsOK(InnerFixture value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.NestedValue));
-            var result = ruling(new Fixture { NestedValue = value });
-
+            var result = Validate(new Fixture { NestedValue = value }, Required<Fixture>(f => f.NestedValue));
             Assert.Equal(expected, result.Valid);
         }
 
@@ -97,54 +83,35 @@ namespace Ruling.Tests.Rules
         [MemberData(nameof(ObjectData))]
         public void Required_Object_Should_BeValid_When_ValidationIsOK(object value, bool expected)
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.ObjectValue));
-            var result = ruling(new Fixture { ObjectValue = value });
-
+            var result = Validate(new Fixture { ObjectValue = value }, Required<Fixture>(f => f.ObjectValue));
             Assert.Equal(expected, result.Valid);
-        }
-
-        [Fact]
-        public void Required_Should_BeInvalid_When_InputIsNull()
-        {
-            var ruling = CreateRuling(Required<Fixture>(f => f.StringValue));
-            var result = ruling(null);
-
-            Assert.False(result.Valid);
         }
 
         [Fact]
         public void Required_Should_UseDefaultMessage_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.StringValue));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), Required<Fixture>(f => f.StringValue));
             Assert.Equal(RequiredMessage, result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void Required_Should_OverrideDefaultMessage_When_OneIsProvided()
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.StringValue, message: "Custom message"));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), Required<Fixture>(f => f.StringValue, message: "Custom message"));
             Assert.Equal("Custom message", result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void Required_Should_UsePropertyName_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.StringValue));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), Required<Fixture>(f => f.StringValue));
             Assert.Equal(nameof(Fixture.StringValue), result.Errors.Single().Key);
         }
 
         [Fact]
         public void Required_Should_OverridePropertyName_When_OneIsProvided()
         {
-            var ruling = CreateRuling(Required<Fixture>(f => f.StringValue, key: "Foooo"));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), Required<Fixture>(f => f.StringValue, key: "Foooo"));
             Assert.Equal("Foooo", result.Errors.Single().Key);
         }
 
