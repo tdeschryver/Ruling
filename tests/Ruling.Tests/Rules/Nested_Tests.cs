@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using static Ruling.Factory;
+using static Ruling.Validator;
 using static Ruling.Rule;
 
 namespace Ruling.Tests.Rules
@@ -14,94 +14,83 @@ namespace Ruling.Tests.Rules
         [InlineData("", false)]
         public void Nested_Should_BeValid_When_NestedValidationIsOK(string value, bool expected)
         {
-            var ruling = CreateRuling(NestedRuling());
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 NestedValue = new InnerFixture
                 {
                     StringValue = value
                 }
-            });
-
+            },
+            NestedRules());
             Assert.Equal(expected, result.Valid);
         }
 
         [Fact]
         public void Nested_Should_BeInvalid_When_NestedObjectIsNull()
         {
-            var ruling = CreateRuling(NestedRuling());
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), NestedRules());
             Assert.False(result.Valid);
         }
 
         [Fact]
         public void Nested_Should_UseDefaultMessage_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(NestedRuling());
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), NestedRules());
             Assert.Equal(DefaultInvalidMessage, result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void Nested_Should_OverrideDefaultMessage_When_OneIsProvided()
         {
-            var ruling = CreateRuling(NestedRuling(message: "Custom message"));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), NestedRules(message: "Custom message"));
             Assert.Equal("Custom message", result.Errors.Single().Value.Single());
         }
 
         [Fact]
         public void Nested_Should_UsePropertyName_When_NoneIsProvided()
         {
-            var ruling = CreateRuling(NestedRuling());
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), NestedRules());
             Assert.Equal(nameof(Fixture.NestedValue), result.Errors.Single().Key);
         }
 
         [Fact]
         public void Nested_Should_OverridePropertyName_When_OneIsProvided()
         {
-            var ruling = CreateRuling(NestedRuling(key: "Nested"));
-            var result = ruling(new Fixture());
-
+            var result = Validate(new Fixture(), NestedRules(key: "Nested"));
             Assert.Equal("Nested", result.Errors.Single().Key);
         }
 
         [Fact]
         public void Nested_Should_ChainKeys_When_NestedObjectPropertyIsInvalid()
         {
-            var ruling = CreateRuling(NestedRuling());
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 NestedValue = new InnerFixture()
-            });
-
+            }, NestedRules());
             Assert.Equal("NestedValue.StringValue", result.Errors.Single().Key);
         }
 
         [Fact]
         public void Nested_Should_ShowMessage_When_NestedObjectPropertyIsInvalid()
         {
-            var ruling = CreateRuling(NestedRuling());
-            var result = ruling(new Fixture
+            var result = Validate(new Fixture
             {
                 NestedValue = new InnerFixture()
-            });
-
+            }, NestedRules());
             Assert.Equal(RequiredMessage, result.Errors.Single().Value.Single());
         }
 
-        Func<InnerFixture, Result> InnerRuling => CreateRuling(Required<InnerFixture>(f => f.StringValue));
-
-        Func<Fixture, Result> NestedRuling(string message = null, string key = null)
-            => CreateRuling(Nested<Fixture, InnerFixture>(f => f.NestedValue, InnerRuling, message, key));
+        Func<Fixture, (bool valid, string key, string message)[]> NestedRules(string message = null, string key = null)
+            => Nested<Fixture, InnerFixture>(
+                f => f.NestedValue,
+                new[] { Required<InnerFixture>(f => f.StringValue) },
+                message,
+                key
+            );
 
         class Fixture
         {
+            public string Foo { get; set; }
             public InnerFixture NestedValue { get; set; }
         }
 
