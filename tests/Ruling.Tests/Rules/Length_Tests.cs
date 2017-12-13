@@ -10,13 +10,13 @@ namespace Ruling.Tests.Rules
     public class Length_Tests
     {
         [Fact]
-        public void StringLength_Should_ThrowArgumentException_When_NoneIsProvided()
+        public void StringLength_Should_ThrowArgumentException_When_NoLengthIsProvided()
         {
             Assert.Throws<ArgumentException>(() => Validate(new Fixture(), Length<Fixture>(f => f.StringValue)));
         }
 
         [Fact]
-        public void ListLength_Should_ThrowArgumentException_When_NoneIsProvided()
+        public void ListLength_Should_ThrowArgumentException_When_NoLengthIsProvided()
         {
             Assert.Throws<ArgumentException>(() => Validate(new Fixture(), Length<Fixture>(f => f.ListValue)));
         }

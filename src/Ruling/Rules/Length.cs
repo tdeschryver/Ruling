@@ -35,7 +35,7 @@ namespace Ruling
                 {
                     return (false, ruleKey, GetMessage(message, string.Format(MinLengthMessageString, min)));
                 }
-                else if (value.Length > max)
+                else if (max != null && value.Length > max)
                 {
                     return (false, ruleKey, GetMessage(message, string.Format(MaxLengthMessageString, max)));
                 }
@@ -64,7 +64,7 @@ namespace Ruling
                 {
                     return (false, ruleKey, GetMessage(message, string.Format(MinLengthMessageList, min)));
                 }
-                else if (value.Count > max)
+                else if (max != null && value.Count > max)
                 {
                     return (false, ruleKey, GetMessage(message, string.Format(MaxLengthMessageList, max)));
                 }
