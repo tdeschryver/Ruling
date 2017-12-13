@@ -25,7 +25,7 @@ namespace Ruling
                     return (false, ruleKey, ruleMessage);
                 }
 
-                return (true, ruleKey, ruleMessage);
+                return (true, ruleKey, nameof(EqualTo));
             };
         }
 
@@ -46,7 +46,7 @@ namespace Ruling
                     return (false, ruleKey, ruleMessage);
                 }
 
-                return (true, ruleKey, ruleMessage);
+                return (true, ruleKey, nameof(EqualTo));
             };
         }
 
