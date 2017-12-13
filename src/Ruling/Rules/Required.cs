@@ -35,7 +35,7 @@ namespace Ruling
                     return (false, ruleKey, ruleMessage);
                 }
 
-                return (true, ruleKey, ruleMessage);
+                return (true, ruleKey, nameof(Required));
             };
         }
 
@@ -52,7 +52,7 @@ namespace Ruling
                     return (false, ruleKey, ruleMessage);
                 }
 
-                return (true, ruleKey, ruleMessage);
+                return (true, ruleKey, nameof(Required));
             };
         }
 
@@ -69,7 +69,7 @@ namespace Ruling
                     return (false, ruleKey, ruleMessage);
                 }
 
-                return (true, ruleKey, ruleMessage);
+                return (true, ruleKey, nameof(Required));
             };
         }
 
@@ -86,7 +86,7 @@ namespace Ruling
                     return (false, ruleKey, ruleMessage);
                 }
 
-                return (true, ruleKey, ruleMessage);
+                return (true, ruleKey, nameof(Required));
             };
         }
 
