@@ -32,7 +32,7 @@ namespace Ruling.Tests.Rules
         public void Format_Should_UseDefaultMessage_When_NoneIsProvided()
         {
             var result = Validate(new Fixture(), Format<Fixture>(f => f.Value, "\\S"));
-            Assert.Equal(string.Format(FormatMessage, 3), result.Errors.Single().Value.Single());
+            Assert.Equal(FormatMessage, result.Errors.Single().Value.Single());
         }
 
         [Fact]
