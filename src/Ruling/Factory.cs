@@ -5,7 +5,7 @@ namespace Ruling
 {
     public class Factory
     {
-        public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, Result>[] funcs)
+        public static Func<TObject, Result> CreateRuling<TObject>(params Func<TObject, Result>[] ruleSets)
             => (TObject @object) =>
             {
                 if (@object == null)
@@ -13,7 +13,7 @@ namespace Ruling
                     throw new ArgumentNullException(nameof(@object));
                 }
 
-                return funcs.Aggregate(new Result(), (result, next) =>
+                return ruleSets.Aggregate(new Result(), (result, next) =>
                 {
                     var messages = result.Messages.Concat(next.Invoke(@object).Messages);
                     return new Result(messages.SelectMany(msgs => msgs.Select(msg => (msgs.Key, msg.key, msg.message))));
