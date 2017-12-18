@@ -21,7 +21,7 @@ namespace Ruling.Tests
         [Fact]
         public void ValidUser_Ruleset()
         {
-            var result = UserOK()(User.CreateValidUser());
+            var result = CheckUserOK()(User.CreateValidUser());
             Assert.True(result.Valid);
         }
 
@@ -37,7 +37,7 @@ namespace Ruling.Tests
         [Fact]
         public void InvalidUser_Ruleset()
         {
-            var result = UserOK()(User.CreateInvalidUser());
+            var result = CheckUserOK()(User.CreateInvalidUser());
             Assert.False(result.Valid);
             Assert.Contains("Email is incorrect", result.Errors["UserEmail"].Single());
             Assert.Contains("Passwords don't match", result.Errors["PasswordConfirmation"].Single());
@@ -49,10 +49,10 @@ namespace Ruling.Tests
 
         static Func<User, (bool valid, string key, string message)>[] Rules = new[] { EmailRule, PasswordLengthRule, PasswordConfirmationRule };
 
-        static Func<User, Result> UserOK()
+        static Func<User, Result> CheckUserOK()
         {
             var emailOK = CreateRuling<User>(
-             f => Validate(f, EmailRule)
+                f => Validate(f, EmailRule)
             );
             var passwordOK = CreateRuling<User>(
                 f => Validate(f, PasswordLengthRule),
